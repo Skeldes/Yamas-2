@@ -12,8 +12,7 @@ import vue.Layer;
 /**
  * 
  * @author Thomas Feuilletin
- * @author Yann Derrien
- * guest Marie Ozon
+ * @author Yann Derrien guest Marie Ozon
  *
  */
 public class PlayGameMode extends GameMode {
@@ -55,7 +54,7 @@ public class PlayGameMode extends GameMode {
 
 	private boolean uniteSelect;
 	private int indiceUnite;
-	
+
 	private Layer layerInfoBg;
 	private Layer layerInfoInf;
 
@@ -87,19 +86,19 @@ public class PlayGameMode extends GameMode {
 			for (int j = 0; j < level[i].length; j++) {
 				switch (level[i][j]) {
 				case 2:
-					battleField.add(new Spawn(j, i));
+					battleField.add(new Case(j, i, TypeTerrain.SPAWN));
 					break;
 				case 3:
-					battleField.add(new Herbe(j, i));
+					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
 					break;
 				case 4:
-					battleField.add(new Mur(j, i));
+					battleField.add(new Case(j, i, TypeTerrain.MUR));
 					break;
 				case 5:
-					battleField.add(new Foret(j, i));
+					battleField.add(new Case(j, i, TypeTerrain.FORET));
 					break;
 				default:
-					battleField.add(new Herbe(j, i));
+					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
 				}
 			}
 		}
@@ -180,7 +179,7 @@ public class PlayGameMode extends GameMode {
 		initArmee();
 		initInfo();
 		currentPlayer = 1;
-		gui.createWindow(levelLayer.getTileWidth() * levelWidth, levelLayer.getTileHeight() * levelHeight+150,
+		gui.createWindow(levelLayer.getTileWidth() * levelWidth, levelLayer.getTileHeight() * levelHeight + 150,
 				"Yamas 2 - le retour !");
 		mouse = gui.getMouse();
 	}
@@ -210,7 +209,7 @@ public class PlayGameMode extends GameMode {
 			}
 
 			else if (mouse.isButtonPressed(MouseEvent.BUTTON3)) {
-				if(uniteSelect) {
+				if (uniteSelect) {
 					currentArmy.get(indiceUnite).estSelectionne = false;
 					deselectUnite();
 				}
@@ -329,13 +328,13 @@ public class PlayGameMode extends GameMode {
 	/*
 	 * Fonctions secondaire
 	 */
-	
+
 	private void gestionDep(List<Personnage> currentArmy) {
 		Case c = battleField.get(selectedTileX + selectedTileY * 20);
 
-		if(!uniteSelect) {
-			for(int i = 0; i<currentArmy.size(); i++) {
-				if(c.posEgale(currentArmy.get(i)) && !currentArmy.get(i).aJouer) {
+		if (!uniteSelect) {
+			for (int i = 0; i < currentArmy.size(); i++) {
+				if (c.posEgale(currentArmy.get(i)) && !currentArmy.get(i).aJouer) {
 					currentArmy.get(i).estSelectionne = true;
 					selectUnite(i);
 					try {
@@ -346,19 +345,18 @@ public class PlayGameMode extends GameMode {
 					return;
 				}
 			}
-		}
-		else {
+		} else {
 			Personnage uniteSel = currentArmy.get(indiceUnite);
-			if(uniteSel.posEgale(c)) {
+			if (uniteSel.posEgale(c)) {
 				uniteSel.aJouer = true;
 				uniteSel.estSelectionne = false;
 				deselectUnite();
 				System.out.println("j'ai jouer !");
 				return;
 			}
-			for(int i = 0; i<currentArmy.size(); i++) {
+			for (int i = 0; i < currentArmy.size(); i++) {
 				Personnage p = currentArmy.get(i);
-				if(c.posEgale(p) && !p.aJouer) {
+				if (c.posEgale(p) && !p.aJouer) {
 					uniteSel.estSelectionne = false;
 					p.estSelectionne = true;
 					changementUniteSelect(i);
@@ -371,9 +369,9 @@ public class PlayGameMode extends GameMode {
 					return;
 				}
 			}
-			for(int i = 0; i < uniteSel.depPossible.size();i++) {
+			for (int i = 0; i < uniteSel.depPossible.size(); i++) {
 				Case cc = uniteSel.depPossible.get(i);
-				if(c.posEgale(cc)) {
+				if (c.posEgale(cc)) {
 					uniteSel.deplacement(selectedTileX, selectedTileY);
 					deselectUnite();
 					return;
