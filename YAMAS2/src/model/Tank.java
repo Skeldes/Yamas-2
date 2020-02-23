@@ -13,5 +13,9 @@ public class Tank extends Personnage {
 	public Tank(int skin, int x, int y, int armee) {
 		super(20, 5, 1, 3, skin, x, y, armee);
 	}
+	
+	public void coupSimple(){
+		
+	}
 
 }
