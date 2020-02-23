@@ -47,7 +47,8 @@ public class Personnage extends Element {
 	 * @param armee       un entier compris entre 1 et le nombre d'armée
 	 */
 	public Personnage(int pv, int attaque, int portee, int deplacement, int skin, int x, int y, int armee) {
-		super(x, y, skin);
+		super(x, y);
+		this.skin = skin;
 		this.pv = pv;
 		this.pvMax = pv;
 		this.attaque = attaque;
