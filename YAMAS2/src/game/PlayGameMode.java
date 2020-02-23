@@ -179,7 +179,7 @@ public class PlayGameMode extends GameMode {
 		initArmee();
 		initInfo();
 		currentPlayer = 1;
-		gui.createWindow(levelLayer.getTileWidth() * levelWidth, levelLayer.getTileHeight() * levelHeight + 150,
+		gui.createWindow(levelLayer.getTileWidth() * levelWidth, levelLayer.getTileHeight() * levelHeight,
 				"Yamas 2 - le retour !");
 		mouse = gui.getMouse();
 	}

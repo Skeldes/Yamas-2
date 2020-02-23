@@ -18,10 +18,12 @@ public class Case extends Element {
 			this.skin = 5;
 			this.traversable = true;
 			this.coutDeplacement = 1;
+			break;
 		case MUR:
 			this.skin = 7;
 			this.traversable = false;
 			this.coutDeplacement = 99;
+			break;
 		case FORET:
 			this.skin = 8;
 			this.traversable = true;
