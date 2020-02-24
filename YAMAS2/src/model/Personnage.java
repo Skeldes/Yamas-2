@@ -201,4 +201,8 @@ public class Personnage extends Element {
 			this.etat = Etats.MORT;
 	}
 
+	public Etats getEtat() {
+		return this.etat;
+	}
+
 }
