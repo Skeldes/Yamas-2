@@ -226,24 +226,40 @@ public class PlayGameMode extends GameMode {
 		if ((now - lastUpdate) >= 1000000000 / 4) {
 			lastUpdate = now;
 			if (currentPlayer == 1) {
-				int count = 0;
+				int countJouer = 0;
+				int countVie = 0;
 				for (int i = 0; i < armeeJoueurUn.size(); i++) {
 					if (!armeeJoueurUn.get(i).aJouer)
-						count++;
+						countJouer++;
 				}
-				if (count == 0) {
+				for(int i = 0; i<armeeJoueurDeux.size(); i++) {
+					if(armeeJoueurDeux.get(i).getEtat() == Etats.VIE)
+						countVie ++;
+				}
+				if(countVie == 0) {
+					gui.isClosingRequested();
+				}
+				if (countJouer == 0) {
 					currentPlayer = 2;
 					for (int i = 0; i < armeeJoueurUn.size(); i++) {
 						armeeJoueurUn.get(i).aJouer = false;
 					}
 				}
 			} else if (currentPlayer == 2) {
-				int count = 0;
+				int countJouer = 0;
+				int countVie = 0;
 				for (int i = 0; i < armeeJoueurDeux.size(); i++) {
 					if (!armeeJoueurDeux.get(i).aJouer)
-						count++;
+						countJouer++;
 				}
-				if (count == 0) {
+				for(int i = 0; i<armeeJoueurUn.size(); i++) {
+					if(armeeJoueurUn.get(i).getEtat() == Etats.VIE)
+						countVie++;
+				}
+				if(countVie == 0) {
+					gui.isClosingRequested();
+				}
+				if (countJouer == 0) {
 					currentPlayer = 1;
 					for (int i = 0; i < armeeJoueurDeux.size(); i++) {
 						armeeJoueurDeux.get(i).aJouer = false;
