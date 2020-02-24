@@ -2,6 +2,7 @@ package vue;
 
 import java.awt.*;
 
+import controlleur.Keyboard;
 import controlleur.Mouse;
 
 /**
@@ -27,6 +28,10 @@ public class AWTGUIFacade implements GUIFacade {
 	@Override
 	public boolean isClosingRequested() {
 		return window.isClosingRequested();
+	}
+	
+	public void setClosingRequested() {
+		window.setClosingRequested();
 	}
 
 	@Override
@@ -82,6 +87,13 @@ public class AWTGUIFacade implements GUIFacade {
 		if (window == null)
 			throw new RuntimeException("Il faut d'abord créer une fenétre");
 		return window.getMouse();
+	}
+	
+	@Override
+	public Keyboard getKeyboard() {
+		if(window == null)
+			throw new RuntimeException("Il faut d'abord créer une fenétre");
+		return window.getKeyboard();
 	}
 
 	@Override

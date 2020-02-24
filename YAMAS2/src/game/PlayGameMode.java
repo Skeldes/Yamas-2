@@ -1,10 +1,12 @@
 package game;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import controlleur.Keyboard;
 import controlleur.Mouse;
 import model.*;
 import vue.Layer;
@@ -18,34 +20,15 @@ import vue.Layer;
 public class PlayGameMode extends GameMode {
 
 	// variables du terrain
-	final int levelHeight = 20;
-	final int levelWidth = 20;
-	final int[][] level = { { 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2 },
-			{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2 }, };
+	final int levelHeight = 100;
+	final int levelWidth = 100;
+	final Carte carte = new Carte(1);
 	public static List<Case> battleField = new ArrayList<Case>();
 	private Layer levelLayer;
 
 	// Variable des armées
-	private static Personnage[] armeeJ1 = { new Guerrier(0, 0, 1, 13), new Guerrier(1, 0, 1, 13),
-			new Archer(0, 1, 1, 11), new Archer(1, 1, 1, 11) };
+	private static Personnage[] armeeJ1 = { new Guerrier(3, 1, 1, 13), new Guerrier(3, 3, 1, 13),
+			new Archer(4, 2, 1, 11), new Archer(5, 1, 1, 11) };
 	private static Personnage[] armeeJ2 = { new Guerrier(19, 19, 2, 17), new Guerrier(18, 19, 2, 17),
 			new Archer(19, 18, 2, 16), new Archer(18, 18, 2, 16) };
 	public static List<Personnage> armeeJoueurUn = new ArrayList<Personnage>();
@@ -64,6 +47,15 @@ public class PlayGameMode extends GameMode {
 
 	// Controlleur
 	private Mouse mouse;
+	private Keyboard keyboard;
+
+	// Champs de vision
+	final int visionWidth = 20;
+	final int visionHeight = 20;
+	private int angleHautX;
+	private int angleHautY;
+	private int angleBasX;
+	private int angleBasY;
 
 	/*
 	 * Fonctions d'initialisation des donnée de jeu
@@ -82,23 +74,56 @@ public class PlayGameMode extends GameMode {
 	 * Fonction qui crée le terrain
 	 */
 	private void createBattleField() {
-		for (int i = 0; i < level.length; i++) {
-			for (int j = 0; j < level[i].length; j++) {
-				switch (level[i][j]) {
-				case 2:
-					battleField.add(new Case(j, i, TypeTerrain.SPAWN));
-					break;
-				case 3:
+		for (int i = 0; i < carte.carteC1.length; i++) {
+			for (int j = 0; j < carte.carteC1[i].length; j++) {
+				switch (carte.carteC1[i][j]) {
+				case 6:
 					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
 					break;
-				case 4:
-					battleField.add(new Case(j, i, TypeTerrain.MUR));
-					break;
-				case 5:
-					battleField.add(new Case(j, i, TypeTerrain.FORET));
+				case 13:
+					battleField.add(new Case(j, i, TypeTerrain.SOL));
 					break;
 				default:
 					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < carte.carteC2.length; i++) {
+			for (int j = 0; j < carte.carteC2[i].length; j++) {
+				switch (carte.carteC2[i][j]) {
+				case 5:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.SPAWN));
+					break;
+				case 7:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.MURH));
+					break;
+				case 8:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.FORET));
+					break;
+				case 9:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.EAU));
+					break;
+				case 11:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.MURV));
+					break;
+				case 12:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.PONTH));
+					break;
+				case 13:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.PONTV));
+					break;
+				case 14:
+					battleField.remove(i * carte.carteC1.length + j);
+					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.SOL));
+					break;
 				}
 			}
 		}
@@ -126,18 +151,26 @@ public class PlayGameMode extends GameMode {
 	public void initTerrain() {
 		createBattleField();
 		levelLayer = gui.createLayer();
-		levelLayer.setSpriteCount(battleField.size());
+		levelLayer.setSpriteCount(visionWidth * visionHeight);
 		levelLayer.setTileSize(32, 32);
+		angleHautX = 0;
+		angleHautY = 0;
+		angleBasX = 20;
+		angleBasY = 20;
+
 		try {
-			levelLayer.setTexture("tuille.png");
+			levelLayer.setTexture("tileTerrain.png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		for (int i = 0; i < battleField.size(); i++) {
-			Case current = battleField.get(i);
-			levelLayer.setSpriteTexture(i, current.skin % 10 - 1, current.skin / 10);
-			levelLayer.setSpriteLocation(i, current.pos[0] * levelLayer.getTileWidth(),
-					current.pos[1] * levelLayer.getTileHeight());
+		for (int i = 0; i < angleBasY; i++) {
+			for (int j = 0; j < angleBasX; j++) {
+				Case current = battleField.get(i * levelHeight + j);
+
+				levelLayer.setSpriteTexture(i * visionWidth + j, current.skin % 10 - 1, current.skin / 10);
+				levelLayer.setSpriteLocation(i * visionWidth + j, current.pos[0] * levelLayer.getTileWidth(),
+						current.pos[1] * levelLayer.getTileHeight());
+			}
 		}
 	}
 
@@ -179,9 +212,10 @@ public class PlayGameMode extends GameMode {
 		initArmee();
 		initInfo();
 		currentPlayer = 1;
-		gui.createWindow(levelLayer.getTileWidth() * levelWidth, levelLayer.getTileHeight() * levelHeight,
+		gui.createWindow(levelLayer.getTileWidth() * visionWidth, levelLayer.getTileHeight() * visionHeight,
 				"Yamas 2 - le retour !");
 		mouse = gui.getMouse();
+		keyboard = gui.getKeyboard();
 	}
 
 	/*
@@ -191,8 +225,8 @@ public class PlayGameMode extends GameMode {
 	int selectedTileX, selectedTileY;
 
 	/*
-	 * TODO ajouter la possibilité de pouvoir bouger sur la case actuel, pouvoir
-	 * annulé son déplacement et de pouvoir attaqué
+	 * TODO ajouter la possibilité de pouvoir annulé son déplacement et de pouvoir
+	 * attaqué
 	 */
 	@Override
 	public void handleInput() {
@@ -202,7 +236,7 @@ public class PlayGameMode extends GameMode {
 		List<Personnage> currentArmy;
 		currentArmy = currentPlayer == 1 ? armeeJoueurUn : armeeJoueurDeux;
 
-		if (selectedTileX >= 0 && selectedTileY >= 0 && selectedTileX < levelWidth && selectedTileY < levelHeight) {
+		if (selectedTileX >= 0 && selectedTileY >= 0 && selectedTileX < visionWidth && selectedTileY < visionHeight) {
 
 			if (mouse.isButtonPressed(MouseEvent.BUTTON1)) {
 				gestionDep(currentArmy);
@@ -212,6 +246,54 @@ public class PlayGameMode extends GameMode {
 				if (uniteSelect) {
 					currentArmy.get(indiceUnite).estSelectionne = false;
 					deselectUnite();
+				}
+			}
+		}
+
+		if (keyboard.isKeyPressed(KeyEvent.VK_ESCAPE)) {
+			gui.setClosingRequested();
+		}
+		if(keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
+			if(angleBasY+1<=levelHeight) {
+				angleHautY++;
+				angleBasY++;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if(keyboard.isKeyPressed(KeyEvent.VK_UP)) {
+			if(angleHautY-1>=0) {
+				angleHautY--;
+				angleBasY--;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if(keyboard.isKeyPressed(KeyEvent.VK_RIGHT)) {
+			if(angleBasX+1<=levelWidth) {
+				angleHautX++;
+				angleBasX++;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if(keyboard.isKeyPressed(KeyEvent.VK_LEFT)) {
+			if(angleHautX-1>=0) {
+				angleHautX--;
+				angleBasX--;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -232,11 +314,11 @@ public class PlayGameMode extends GameMode {
 					if (!armeeJoueurUn.get(i).aJouer)
 						countJouer++;
 				}
-				for(int i = 0; i<armeeJoueurDeux.size(); i++) {
-					if(armeeJoueurDeux.get(i).getEtat() == Etats.VIE)
-						countVie ++;
+				for (int i = 0; i < armeeJoueurDeux.size(); i++) {
+					if (armeeJoueurDeux.get(i).getEtat() == Etats.VIE)
+						countVie++;
 				}
-				if(countVie == 0) {
+				if (countVie == 0) {
 					gui.isClosingRequested();
 				}
 				if (countJouer == 0) {
@@ -252,11 +334,11 @@ public class PlayGameMode extends GameMode {
 					if (!armeeJoueurDeux.get(i).aJouer)
 						countJouer++;
 				}
-				for(int i = 0; i<armeeJoueurUn.size(); i++) {
-					if(armeeJoueurUn.get(i).getEtat() == Etats.VIE)
+				for (int i = 0; i < armeeJoueurUn.size(); i++) {
+					if (armeeJoueurUn.get(i).getEtat() == Etats.VIE)
 						countVie++;
 				}
-				if(countVie == 0) {
+				if (countVie == 0) {
 					gui.isClosingRequested();
 				}
 				if (countJouer == 0) {
@@ -271,11 +353,13 @@ public class PlayGameMode extends GameMode {
 			lastUpdate2 = now;
 			boolean uniteSelect = false;
 			int indiceUniteSelect = -1;
-			for (int i = 0; i < battleField.size(); i++) {
-				levelLayer.setSpriteLocation(i, battleField.get(i).pos[0] * levelLayer.getTileWidth(),
-						battleField.get(i).pos[1] * levelLayer.getTileHeight());
-				levelLayer.setSpriteTexture(i, battleField.get(i).skin % 10 - 1, battleField.get(i).skin / 10);
-			}
+			
+			
+			
+			updateTerrain();
+			
+			
+			
 			for (int i = 0; i < armeeJoueurUn.size() + armeeJoueurDeux.size(); i++) {
 				int x, y, skin;
 				if (i < armeeJoueurUn.size()) {
@@ -346,7 +430,7 @@ public class PlayGameMode extends GameMode {
 	 */
 
 	private void gestionDep(List<Personnage> currentArmy) {
-		Case c = battleField.get(selectedTileX + selectedTileY * 20);
+		Case c = battleField.get(selectedTileX + selectedTileY * 100);
 
 		if (!uniteSelect) {
 			for (int i = 0; i < currentArmy.size(); i++) {
@@ -408,6 +492,28 @@ public class PlayGameMode extends GameMode {
 	private void deselectUnite() {
 		indiceUnite = -1;
 		uniteSelect = false;
+	}
+	
+	/**
+	 * Fonction qui met à jour le layer levelLayer
+	 */
+	private void updateTerrain() {
+		int index = 0;
+		int screenX = 0;
+		int screenY = 0;
+		for(int i = angleHautY; i < angleBasY; i++) {
+			for(int j =  angleHautX; j<angleBasX; j++) {
+				
+				levelLayer.setSpriteTexture(index, battleField.get(j+i*levelWidth).skin%10-1, battleField.get(j+i*levelWidth).skin/10);
+				
+				levelLayer.setSpriteLocation(index++, screenX*levelLayer.getTileWidth(), screenY*levelLayer.getTileHeight());
+				screenX++;
+			}
+			screenX = 0;
+			screenY++;
+		}
+		
+		
 	}
 
 }
