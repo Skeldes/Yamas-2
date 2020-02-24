@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
+import controlleur.AWTKeyboard;
 import controlleur.AWTMouse;
 
 
@@ -33,6 +34,7 @@ public class AWTWindow extends Frame {
 	private BufferStrategy bs;
 	
 	private AWTMouse mouse;
+	private AWTKeyboard keyboard;
 
 	/**
 	 * Initie une fenetre de la taille WindowWidth, WindoWHeight et de titre title
@@ -47,6 +49,7 @@ public class AWTWindow extends Frame {
 			public void windowClosing(WindowEvent we) {
 				closingRequested = true;
 			}
+			
 		});
 		closingRequested = false;
 	}
@@ -67,8 +70,10 @@ public class AWTWindow extends Frame {
 		add(canvas);
 		
 		mouse = new AWTMouse();
+		keyboard = new AWTKeyboard();
 		canvas.addMouseListener(mouse);
 		canvas.addMouseMotionListener(mouse);
+		canvas.addKeyListener(keyboard);
 		pack();
 	}
 	
@@ -92,6 +97,11 @@ public class AWTWindow extends Frame {
 		return closingRequested;
 	}
 	
+	public void setClosingRequested(boolean closingRequested) {
+		this.closingRequested = closingRequested;
+	}
+
+
 	/**
 	 * Interchange les deux buffers
 	 */
@@ -125,6 +135,17 @@ public class AWTWindow extends Frame {
 	 */
 	public AWTMouse getMouse() {
 		return mouse;
+	}
+	
+	/**
+	 * @return le controlleur du clavier associé à la fenêtre
+	 */
+	public AWTKeyboard getKeyboard() {
+		return keyboard;
+	}
+	
+	public void setClosingRequested() {
+		this.closingRequested = true;
 	}
 
 }

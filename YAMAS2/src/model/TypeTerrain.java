@@ -8,5 +8,5 @@ package model;
  *
  */
 public enum TypeTerrain {
-	FORET, SPAWN, MUR, PLAINE;
+	FORET, SPAWN, MURV, MURH, PLAINE, SOL, EAU, PONTV, PONTH;
 }

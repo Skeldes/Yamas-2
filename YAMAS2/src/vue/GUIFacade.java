@@ -1,5 +1,6 @@
 package vue;
 
+import controlleur.Keyboard;
 import controlleur.Mouse;
 
 /**
@@ -21,6 +22,11 @@ public interface GUIFacade {
 	 * @return si il y a une requete pour fermé la fenetre
 	 */
 	public boolean isClosingRequested();
+	
+	/**
+	 * ferme l'application
+	 */
+	public void setClosingRequested();
 	
 	/**
 	 * Ferme la fenetre
@@ -55,4 +61,9 @@ public interface GUIFacade {
 	 * @return un controlleur de la souris
 	 */
 	public Mouse getMouse();
+	
+	/**
+	 * @return un controlleur du clavier
+	 */
+	public Keyboard getKeyboard();
 }

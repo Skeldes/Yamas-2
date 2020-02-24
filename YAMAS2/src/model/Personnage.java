@@ -25,6 +25,8 @@ public class Personnage extends Element {
 	public ArrayList<Case> depPossible;
 	private int deplacement;
 
+	private Etats etat;
+
 	/*
 	 * XXX problème de portée Certaine attaques ont une portée différente à
 	 * retravailler
@@ -58,6 +60,7 @@ public class Personnage extends Element {
 		this.estSelectionne = false;
 		this.armee = armee;
 		this.aJouer = false;
+		this.etat = Etats.VIE;
 	}
 
 	/*
@@ -92,17 +95,17 @@ public class Personnage extends Element {
 			}
 		}
 
-		if (d >= 0 && c >= 0 && c < 400 && casePossible) {// Si l'unité à encore des points d, que la case existe dans
+		if (d >= 0 && c >= 0 && c < 10000 && casePossible) {// Si l'unité à encore des points d, que la case existe dans
 															// le plateau et si il n'y a pas d'ennemie sur la case
 			depPossible.add(game.PlayGameMode.battleField.get(c));
-			if ((c + 1) % 20 != 0 && c + 1 < 400)
+			if ((c + 1) % 100 != 0 && c + 1 < 10000)
 				calDeplacement(c + 1, d - game.PlayGameMode.battleField.get(c + 1).coutDeplacement);
-			if ((c - 1) % 20 != 19 && c - 1 >= 0)
+			if ((c - 1) % 100 != 99 && c - 1 >= 0)
 				calDeplacement(c - 1, d - game.PlayGameMode.battleField.get(c - 1).coutDeplacement);
-			if (c - 20 >= 0)
-				calDeplacement(c - 20, d - game.PlayGameMode.battleField.get(c - 20).coutDeplacement);
-			if (c + 20 < 400)
-				calDeplacement(c + 20, d - game.PlayGameMode.battleField.get(c + 20).coutDeplacement);
+			if (c - 100 >= 0)
+				calDeplacement(c - 100, d - game.PlayGameMode.battleField.get(c - 100).coutDeplacement);
+			if (c + 100 < 10000)
+				calDeplacement(c + 100, d - game.PlayGameMode.battleField.get(c + 100).coutDeplacement);
 		}
 	}
 
@@ -194,6 +197,12 @@ public class Personnage extends Element {
 	 */
 	public void setVie(int varVie) {
 		this.pv += varVie;
+		if (this.pv <= 0)
+			this.etat = Etats.MORT;
+	}
+
+	public Etats getEtat() {
+		return this.etat;
 	}
 
 }
