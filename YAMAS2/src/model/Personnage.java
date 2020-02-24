@@ -25,6 +25,8 @@ public class Personnage extends Element {
 	public ArrayList<Case> depPossible;
 	private int deplacement;
 
+	private Etats etat;
+
 	/*
 	 * XXX problème de portée Certaine attaques ont une portée différente à
 	 * retravailler
@@ -58,6 +60,7 @@ public class Personnage extends Element {
 		this.estSelectionne = false;
 		this.armee = armee;
 		this.aJouer = false;
+		this.etat = Etats.VIE;
 	}
 
 	/*
@@ -194,6 +197,8 @@ public class Personnage extends Element {
 	 */
 	public void setVie(int varVie) {
 		this.pv += varVie;
+		if (this.pv <= 0)
+			this.etat = Etats.MORT;
 	}
 
 }
