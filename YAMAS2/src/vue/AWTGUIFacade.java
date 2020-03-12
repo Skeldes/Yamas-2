@@ -30,6 +30,7 @@ public class AWTGUIFacade implements GUIFacade {
 		return window.isClosingRequested();
 	}
 	
+	@Override
 	public void setClosingRequested() {
 		window.setClosingRequested();
 	}
@@ -95,7 +96,7 @@ public class AWTGUIFacade implements GUIFacade {
 			throw new RuntimeException("Il faut d'abord créer une fenétre");
 		return window.getKeyboard();
 	}
-
+	//tests
 	@Override
 	public void drawString(String text, int x, int y, int width, int height) {
 		g.setFont(new Font("Arial", Font.PLAIN,44));
