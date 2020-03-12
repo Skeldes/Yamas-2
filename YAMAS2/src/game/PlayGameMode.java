@@ -14,7 +14,8 @@ import vue.Layer;
 /**
  * 
  * @author Thomas Feuilletin
- * @author Yann Derrien guest Marie Ozon
+ * @author Yann Derrien
+ * @author Marie Ozon
  *
  */
 public class PlayGameMode extends GameMode {
@@ -29,14 +30,15 @@ public class PlayGameMode extends GameMode {
 	// Variable des armées
 	private static Personnage[] armeeJ1 = { new Guerrier(3, 1, 1, 13), new Guerrier(3, 3, 1, 13),
 			new Archer(4, 2, 1, 11), new Archer(5, 1, 1, 11) };
-	private static Personnage[] armeeJ2 = { new Guerrier(19, 19, 2, 17), new Guerrier(18, 19, 2, 17),
-			new Archer(19, 18, 2, 16), new Archer(18, 18, 2, 16) };
+	private static Personnage[] armeeJ2 = { new Guerrier(98, 98, 2, 17), new Guerrier(98, 96, 2, 17),
+			new Archer(96, 98, 2, 16), new Archer(96, 96, 2, 16) };
 	public static List<Personnage> armeeJoueurUn = new ArrayList<Personnage>();
 	public static List<Personnage> armeeJoueurDeux = new ArrayList<Personnage>();
 	private Layer charsLayer;
 
 	private boolean uniteSelect;
 	private int indiceUnite;
+	private int indiceUniteSelect;
 
 	private Layer layerInfoBg;
 	private Layer layerInfoInf;
@@ -230,13 +232,13 @@ public class PlayGameMode extends GameMode {
 	 */
 	@Override
 	public void handleInput() {
-		selectedTileX = mouse.getX() / 32;
-		selectedTileY = mouse.getY() / 32;
-
+		selectedTileX = mouse.getX() / 32 + angleHautX;
+		selectedTileY = mouse.getY() / 32 + angleHautY;
+		
 		List<Personnage> currentArmy;
 		currentArmy = currentPlayer == 1 ? armeeJoueurUn : armeeJoueurDeux;
 
-		if (selectedTileX >= 0 && selectedTileY >= 0 && selectedTileX < visionWidth && selectedTileY < visionHeight) {
+		if (selectedTileX >= 0 && selectedTileY >= 0 && selectedTileX < 100 && selectedTileY < 100) {
 
 			if (mouse.isButtonPressed(MouseEvent.BUTTON1)) {
 				gestionDep(currentArmy);
@@ -253,8 +255,8 @@ public class PlayGameMode extends GameMode {
 		if (keyboard.isKeyPressed(KeyEvent.VK_ESCAPE)) {
 			gui.setClosingRequested();
 		}
-		if(keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
-			if(angleBasY+1<=levelHeight) {
+		if (keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
+			if (angleBasY + 1 <= levelHeight) {
 				angleHautY++;
 				angleBasY++;
 				try {
@@ -264,8 +266,8 @@ public class PlayGameMode extends GameMode {
 				}
 			}
 		}
-		if(keyboard.isKeyPressed(KeyEvent.VK_UP)) {
-			if(angleHautY-1>=0) {
+		if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
+			if (angleHautY - 1 >= 0) {
 				angleHautY--;
 				angleBasY--;
 				try {
@@ -275,8 +277,8 @@ public class PlayGameMode extends GameMode {
 				}
 			}
 		}
-		if(keyboard.isKeyPressed(KeyEvent.VK_RIGHT)) {
-			if(angleBasX+1<=levelWidth) {
+		if (keyboard.isKeyPressed(KeyEvent.VK_RIGHT)) {
+			if (angleBasX + 1 <= levelWidth) {
 				angleHautX++;
 				angleBasX++;
 				try {
@@ -286,8 +288,8 @@ public class PlayGameMode extends GameMode {
 				}
 			}
 		}
-		if(keyboard.isKeyPressed(KeyEvent.VK_LEFT)) {
-			if(angleHautX-1>=0) {
+		if (keyboard.isKeyPressed(KeyEvent.VK_LEFT)) {
+			if (angleHautX - 1 >= 0) {
 				angleHautX--;
 				angleBasX--;
 				try {
@@ -322,9 +324,38 @@ public class PlayGameMode extends GameMode {
 					gui.isClosingRequested();
 				}
 				if (countJouer == 0) {
+
 					currentPlayer = 2;
 					for (int i = 0; i < armeeJoueurUn.size(); i++) {
 						armeeJoueurUn.get(i).aJouer = false;
+					}
+					boolean[] aBouger = {false,false};//0 angle haut  1 angleBas
+					Personnage p = armeeJoueurDeux.get(0);
+					if (p.pos[0] - 10 < 0) {
+						angleHautX = 0;
+						angleBasX = 20;
+						aBouger[0] = true;
+					} else {
+						angleHautX = p.pos[0] - 10;
+					}
+					if (p.pos[1] - 10 < 0) {
+						angleHautY = 0;
+						angleBasY = 20;
+						aBouger[1]=true;
+					} else {
+						angleHautY = p.pos[1] - 10;
+					}
+					if (p.pos[0] + 10 > 100) {
+						angleBasX = 100;
+						angleHautX = 80;
+					} else if (p.pos[0] + 10 > 100 && !aBouger[0]) {
+						angleBasX = p.pos[0] + 10;
+					}
+					if (p.pos[1] + 10 > 100) {
+						angleBasY = 100;
+						angleHautY = 80;
+					} else if (p.pos[1] + 10 > 100 && !aBouger[1]){
+						angleBasY = p.pos[1] + 10;
 					}
 				}
 			} else if (currentPlayer == 2) {
@@ -346,65 +377,49 @@ public class PlayGameMode extends GameMode {
 					for (int i = 0; i < armeeJoueurDeux.size(); i++) {
 						armeeJoueurDeux.get(i).aJouer = false;
 					}
+					
+					boolean[] aBouger = {false,false};//0 angle haut  1 angleBas
+					Personnage p = armeeJoueurUn.get(0);
+					if (p.pos[0] - 10 < 0) {
+						angleHautX = 0;
+						angleBasX = 20;
+						aBouger[0] = true;
+					} else {
+						angleHautX = p.pos[0] - 10;
+					}
+					if (p.pos[1] - 10 < 0) {
+						angleHautY = 0;
+						angleBasY = 20;
+						aBouger[1]=true;
+					} else {
+						angleHautY = p.pos[1] - 10;
+					}
+					if (p.pos[0] + 10 > 100) {
+						angleBasX = 100;
+						angleHautX = 80;
+					} else if (p.pos[0] + 10 > 100 && !aBouger[0]) {
+						angleBasX = p.pos[0] + 10;
+					}
+					if (p.pos[1] + 10 > 100) {
+						angleBasY = 100;
+						angleHautY = 80;
+					} else if (p.pos[1] + 10 > 100 && !aBouger[1]){
+						angleBasY = p.pos[1] + 10;
+					}
 				}
 			}
 		}
 		if ((now - lastUpdate2) >= 1000000000 / 12) {
 			lastUpdate2 = now;
-			boolean uniteSelect = false;
-			int indiceUniteSelect = -1;
-			
-			
-			
+			uniteSelect = false;
+			indiceUniteSelect = -1;
+
 			updateTerrain();
-			
-			
-			
-			for (int i = 0; i < armeeJoueurUn.size() + armeeJoueurDeux.size(); i++) {
-				int x, y, skin;
-				if (i < armeeJoueurUn.size()) {
-					x = armeeJoueurUn.get(i).pos[0];
-					y = armeeJoueurUn.get(i).pos[1];
-					skin = armeeJoueurUn.get(i).skin;
-					if (armeeJoueurUn.get(i).estSelectionne && !armeeJoueurUn.get(i).aJouer) {
-						uniteSelect = true;
-						indiceUniteSelect = i;
-					}
-				} else {
-					x = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[0];
-					y = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[1];
-					skin = armeeJoueurDeux.get(i % armeeJoueurUn.size()).skin;
-					if (armeeJoueurDeux.get(i % armeeJoueurUn.size()).estSelectionne
-							&& !armeeJoueurDeux.get(i % armeeJoueurUn.size()).aJouer) {
-						uniteSelect = true;
-						indiceUniteSelect = i % armeeJoueurUn.size();
-					}
-				}
-				charsLayer.setSpriteLocation(i, x * charsLayer.getTileWidth(), y * charsLayer.getTileHeight());
-				charsLayer.setSpriteTexture(i, skin % 10 - 1, skin / 10);
-			}
+
+			updateArmee();
+
 			if (uniteSelect) {
-				if (currentPlayer == 1) {
-					Personnage unite = armeeJoueurUn.get(indiceUniteSelect);
-					unite.calculDeplacement();
-					infoLayer.setSpriteCount(unite.depPossible.size());
-					for (int i = 0; i < unite.depPossible.size(); i++) {
-						Case caseCourrante = unite.depPossible.get(i);
-						infoLayer.setSpriteTexture(i, 3, 0);
-						infoLayer.setSpriteLocation(i, caseCourrante.pos[0] * infoLayer.getTileWidth(),
-								caseCourrante.pos[1] * infoLayer.getTileHeight());
-					}
-				} else {
-					Personnage unite = armeeJoueurDeux.get(indiceUniteSelect);
-					unite.calculDeplacement();
-					infoLayer.setSpriteCount(unite.depPossible.size());
-					for (int i = 0; i < unite.depPossible.size(); i++) {
-						Case caseCourrante = unite.depPossible.get(i);
-						infoLayer.setSpriteTexture(i, 3, 0);
-						infoLayer.setSpriteLocation(i, caseCourrante.pos[0] * infoLayer.getTileWidth(),
-								caseCourrante.pos[1] * infoLayer.getTileHeight());
-					}
-				}
+				updateInfo();
 			} else {
 				infoLayer.setSpriteCount(0);
 			}
@@ -451,7 +466,6 @@ public class PlayGameMode extends GameMode {
 				uniteSel.aJouer = true;
 				uniteSel.estSelectionne = false;
 				deselectUnite();
-				System.out.println("j'ai jouer !");
 				return;
 			}
 			for (int i = 0; i < currentArmy.size(); i++) {
@@ -460,7 +474,6 @@ public class PlayGameMode extends GameMode {
 					uniteSel.estSelectionne = false;
 					p.estSelectionne = true;
 					changementUniteSelect(i);
-					System.out.println("changement fait !");
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -493,7 +506,7 @@ public class PlayGameMode extends GameMode {
 		indiceUnite = -1;
 		uniteSelect = false;
 	}
-	
+
 	/**
 	 * Fonction qui met à jour le layer levelLayer
 	 */
@@ -501,19 +514,83 @@ public class PlayGameMode extends GameMode {
 		int index = 0;
 		int screenX = 0;
 		int screenY = 0;
-		for(int i = angleHautY; i < angleBasY; i++) {
-			for(int j =  angleHautX; j<angleBasX; j++) {
-				
-				levelLayer.setSpriteTexture(index, battleField.get(j+i*levelWidth).skin%10-1, battleField.get(j+i*levelWidth).skin/10);
-				
-				levelLayer.setSpriteLocation(index++, screenX*levelLayer.getTileWidth(), screenY*levelLayer.getTileHeight());
+		for (int i = angleHautY; i < angleBasY; i++) {
+			for (int j = angleHautX; j < angleBasX; j++) {
+
+				levelLayer.setSpriteTexture(index, battleField.get(j + i * levelWidth).skin % 10 - 1,
+						battleField.get(j + i * levelWidth).skin / 10);
+
+				levelLayer.setSpriteLocation(index++, screenX * levelLayer.getTileWidth(),
+						screenY * levelLayer.getTileHeight());
 				screenX++;
 			}
 			screenX = 0;
 			screenY++;
 		}
-		
-		
+	}
+
+	/**
+	 * 
+	 * @param indiceUniteSelect
+	 */
+	private void updateArmee() {
+		for (int i = 0; i < armeeJoueurUn.size() + armeeJoueurDeux.size(); i++) {
+			int x, y, skin;
+			if (i < armeeJoueurUn.size()) {
+				x = armeeJoueurUn.get(i).pos[0];
+				y = armeeJoueurUn.get(i).pos[1];
+				skin = armeeJoueurUn.get(i).skin;
+				if (armeeJoueurUn.get(i).estSelectionne && !armeeJoueurUn.get(i).aJouer) {
+					uniteSelect = true;
+					indiceUniteSelect = i;
+				}
+			} else {
+				x = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[0];
+				y = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[1];
+				skin = armeeJoueurDeux.get(i % armeeJoueurUn.size()).skin;
+				if (armeeJoueurDeux.get(i % armeeJoueurUn.size()).estSelectionne
+						&& !armeeJoueurDeux.get(i % armeeJoueurUn.size()).aJouer) {
+					uniteSelect = true;
+					indiceUniteSelect = i % armeeJoueurUn.size();
+				}
+			}
+			if (x - angleHautX >= 0 && x - angleHautX < 20 && y - angleHautY >= 0 && y - angleHautY < 20) {
+				charsLayer.setSpriteLocation(i, (x - angleHautX) * charsLayer.getTileWidth(),
+						(y - angleHautY) * charsLayer.getTileHeight());
+				charsLayer.setSpriteTexture(i, skin % 10 - 1, skin / 10);
+			} else
+				charsLayer.setSpriteTexture(i, 0, 0);
+		}
+	}
+
+	private void updateInfo() {
+		if (currentPlayer == 1) {
+			Personnage unite = armeeJoueurUn.get(indiceUniteSelect);
+			unite.calculDeplacement();
+			infoLayer.setSpriteCount(unite.depPossible.size());
+			for (int i = 0; i < unite.depPossible.size(); i++) {
+				Case caseCourrante = unite.depPossible.get(i);
+				if (caseCourrante.pos[0] - angleHautX >= 0 && caseCourrante.pos[0] - angleHautX < 20
+						&& caseCourrante.pos[1] - angleHautY >= 0 && caseCourrante.pos[1] - angleHautY < 20) {
+					infoLayer.setSpriteTexture(i, 3, 0);
+					infoLayer.setSpriteLocation(i, (caseCourrante.pos[0] - angleHautX) * infoLayer.getTileWidth(),
+							(caseCourrante.pos[1] - angleHautY) * infoLayer.getTileHeight());
+				}
+			}
+		} else {
+			Personnage unite = armeeJoueurDeux.get(indiceUniteSelect);
+			unite.calculDeplacement();
+			infoLayer.setSpriteCount(unite.depPossible.size());
+			for (int i = 0; i < unite.depPossible.size(); i++) {
+				Case caseCourrante = unite.depPossible.get(i);
+				if (caseCourrante.pos[0] - angleHautX >= 0 && caseCourrante.pos[0] - angleHautX < 20
+						&& caseCourrante.pos[1] - angleHautY >= 0 && caseCourrante.pos[1] - angleHautY < 20) {
+					infoLayer.setSpriteTexture(i, 3, 0);
+					infoLayer.setSpriteLocation(i, (caseCourrante.pos[0] - angleHautX) * infoLayer.getTileWidth(),
+							(caseCourrante.pos[1] - angleHautY) * infoLayer.getTileHeight());
+				}
+			}
+		}
 	}
 
 }
