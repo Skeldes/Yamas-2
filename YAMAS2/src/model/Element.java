@@ -1,17 +1,39 @@
 package model;
 
-public class Element {
-	public int[] pos = new int[2];
-	public int skin;
-	public int caseElement;
+public abstract class Element  {
+	private int[] pos = new int[2];
+	private int skin;
+	private int caseElement;
 
-	public Element(int x, int y) {
-		this.pos[0] = x;
-		this.pos[1] = y;
-		caseElement = x + y * 100;
-	}
 
 	public boolean posEgale(Element e) {
-		return e.pos[0] == this.pos[0] && e.pos[1] == this.pos[1];
+		return e.getPos()[0] == this.getPos()[0] && e.getPos()[1] == this.getPos()[1];
+	}
+
+
+	public int getSkin() {
+		return skin;
+	}
+
+	public void setSkin(int skin) {
+		this.skin = skin;
+	}
+
+	public int[] getPos() {
+		return pos;
+	}
+
+	public void setPos(int[] pos) {
+		this.pos = pos;
+	}
+
+
+	public int getCaseElement() {
+		return caseElement;
+	}
+
+
+	public void setCaseElement(int caseElement) {
+		this.caseElement = caseElement;
 	}
 }
