@@ -9,6 +9,13 @@ import java.util.List;
 import controlleur.Keyboard;
 import controlleur.Mouse;
 import model.*;
+import model.terrain.Carte;
+import model.terrain.Case;
+import model.terrain.ElementFactory;
+import model.unite.Armee;
+import model.unite.ArmeeFactory;
+import model.unite.Etats;
+import model.unite.Personnage;
 import vue.Layer;
 
 /**
@@ -21,27 +28,11 @@ import vue.Layer;
 public class PlayGameMode extends GameMode {
 
 	// variables du terrain
-	final int levelHeight = 100;
-	final int levelWidth = 100;
-	final Carte carte = new Carte(1);
-	public static List<Case> battleField = new ArrayList<Case>();
+	public static World world;
 	private Layer levelLayer;
 
 	// Variable des armées
-	private static Personnage[] armeeJ1 = { new Guerrier(3, 1, 1, 13), new Guerrier(3, 3, 1, 13),
-			new Archer(4, 2, 1, 11), new Archer(5, 1, 1, 11) };
-	private static Personnage[] armeeJ2 = { new Guerrier(98, 98, 2, 17), new Guerrier(98, 96, 2, 17),
-			new Archer(96, 98, 2, 16), new Archer(96, 96, 2, 16) };
-	public static List<Personnage> armeeJoueurUn = new ArrayList<Personnage>();
-	public static List<Personnage> armeeJoueurDeux = new ArrayList<Personnage>();
 	private Layer charsLayer;
-
-	private boolean uniteSelect;
-	private int indiceUnite;
-	private int indiceUniteSelect;
-
-	private Layer layerInfoBg;
-	private Layer layerInfoInf;
 
 	// Variable d'info
 	private int currentPlayer;
@@ -59,77 +50,11 @@ public class PlayGameMode extends GameMode {
 	private int angleBasX;
 	private int angleBasY;
 
+	private Updateur updateur;
+
 	/*
 	 * Fonctions d'initialisation des donnée de jeu
 	 */
-	/**
-	 * Fonction qui crée les armées des deux joueurs
-	 */
-	private void createArmy() {
-		for (int i = 0; i < armeeJ1.length; i++) {
-			armeeJoueurUn.add(armeeJ1[i]);
-			armeeJoueurDeux.add(armeeJ2[i]);
-		}
-	}
-
-	/**
-	 * Fonction qui crée le terrain
-	 */
-	private void createBattleField() {
-		for (int i = 0; i < carte.carteC1.length; i++) {
-			for (int j = 0; j < carte.carteC1[i].length; j++) {
-				switch (carte.carteC1[i][j]) {
-				case 6:
-					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
-					break;
-				case 13:
-					battleField.add(new Case(j, i, TypeTerrain.SOL));
-					break;
-				default:
-					battleField.add(new Case(j, i, TypeTerrain.PLAINE));
-					break;
-				}
-			}
-		}
-		for (int i = 0; i < carte.carteC2.length; i++) {
-			for (int j = 0; j < carte.carteC2[i].length; j++) {
-				switch (carte.carteC2[i][j]) {
-				case 5:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.SPAWN));
-					break;
-				case 7:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.MURH));
-					break;
-				case 8:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.FORET));
-					break;
-				case 9:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.EAU));
-					break;
-				case 11:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.MURV));
-					break;
-				case 12:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.PONTH));
-					break;
-				case 13:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.PONTV));
-					break;
-				case 14:
-					battleField.remove(i * carte.carteC1.length + j);
-					battleField.add(i * carte.carteC1.length + j, new Case(j, i, TypeTerrain.SOL));
-					break;
-				}
-			}
-		}
-	}
 
 	/**
 	 * Fonction qui crée et met a zero le layer info
@@ -151,7 +76,7 @@ public class PlayGameMode extends GameMode {
 	 * 
 	 */
 	public void initTerrain() {
-		createBattleField();
+		Carte c = world.getCarte();
 		levelLayer = gui.createLayer();
 		levelLayer.setSpriteCount(visionWidth * visionHeight);
 		levelLayer.setTileSize(32, 32);
@@ -167,11 +92,11 @@ public class PlayGameMode extends GameMode {
 		}
 		for (int i = 0; i < angleBasY; i++) {
 			for (int j = 0; j < angleBasX; j++) {
-				Case current = battleField.get(i * levelHeight + j);
+				Case current = c.getCarte().get(i * world.getCarte().getcHeight() + j);
 
-				levelLayer.setSpriteTexture(i * visionWidth + j, current.skin % 10 - 1, current.skin / 10);
-				levelLayer.setSpriteLocation(i * visionWidth + j, current.pos[0] * levelLayer.getTileWidth(),
-						current.pos[1] * levelLayer.getTileHeight());
+				levelLayer.setSpriteTexture(i * visionWidth + j, current.getSkin() % 10 - 1, current.getSkin() / 10);
+				levelLayer.setSpriteLocation(i * visionWidth + j, current.getPos()[0] * levelLayer.getTileWidth(),
+						current.getPos()[1] * levelLayer.getTileHeight());
 			}
 		}
 	}
@@ -182,34 +107,46 @@ public class PlayGameMode extends GameMode {
 	 * 
 	 */
 	public void initArmee() {
-		createArmy();
-		uniteSelect = false;
-		indiceUnite = -1;
+		Armee a = world.getArmees();
 		charsLayer = gui.createLayer();
-		charsLayer.setSpriteCount(armeeJoueurUn.size() + armeeJoueurDeux.size());
+		charsLayer.setSpriteCount(a.getArmee(1).size() + a.getArmee(2).size());
 		charsLayer.setTileSize(32, 32);
 		try {
-			charsLayer.setTexture("tuille.png");
+			charsLayer.setTexture("tileArmee.png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		for (int i = 0; i < armeeJoueurUn.size() + armeeJoueurDeux.size(); i++) {
-			if (i < armeeJoueurUn.size()) {
-				Personnage unite = armeeJoueurUn.get(i);
-				charsLayer.setSpriteTexture(i, unite.skin % 10 - 1, unite.skin / 10);
-				charsLayer.setSpriteLocation(i, unite.pos[0] * charsLayer.getTileWidth(),
-						unite.pos[1] * charsLayer.getTileHeight());
+		for (int i = 0; i < a.getArmee(1).size() + a.getArmee(2).size(); i++) {
+			if (i < a.getArmee(1).size()) {
+				Personnage unite = a.getArmee(1).get(i);
+				charsLayer.setSpriteTexture(i, unite.getSkin() % 10 - 1, unite.getSkin() / 10);
+				charsLayer.setSpriteLocation(i, unite.getPos()[0] * charsLayer.getTileWidth(),
+						unite.getPos()[1] * charsLayer.getTileHeight());
 			} else {
-				Personnage unite = armeeJoueurDeux.get(i % armeeJoueurUn.size());
-				charsLayer.setSpriteTexture(i, unite.skin % 10 - 1, unite.skin / 10);
-				charsLayer.setSpriteLocation(i, unite.pos[0] * charsLayer.getTileWidth(),
-						unite.pos[1] * charsLayer.getTileHeight());
+				Personnage unite = a.getArmee(2).get(i % a.getArmee(1).size());
+				charsLayer.setSpriteTexture(i, unite.getSkin() % 10 - 1, unite.getSkin() / 10);
+				charsLayer.setSpriteLocation(i, unite.getPos()[0] * charsLayer.getTileWidth(),
+						unite.getPos()[1] * charsLayer.getTileHeight());
 			}
 		}
 	}
 
 	@Override
 	public void init() {
+		Carte c = new Carte(1);
+		Armee a = new Armee();
+		ElementFactory f = new ElementFactory();
+		ArmeeFactory af = new ArmeeFactory();
+		c.setFactory(f.getDefault());
+		a.setAf(af.getDefault());
+		a.init();
+		c.init();
+
+		updateur = new Updateur();
+		world = new World();
+		world.setCarte(c);
+		world.setArmees(a);
+		updateur.setW(world);
 		initTerrain();
 		initArmee();
 		initInfo();
@@ -234,9 +171,9 @@ public class PlayGameMode extends GameMode {
 	public void handleInput() {
 		selectedTileX = mouse.getX() / 32 + angleHautX;
 		selectedTileY = mouse.getY() / 32 + angleHautY;
-		
+
 		List<Personnage> currentArmy;
-		currentArmy = currentPlayer == 1 ? armeeJoueurUn : armeeJoueurDeux;
+		currentArmy = currentPlayer == 1 ? world.getArmees().getArmee(1) : world.getArmees().getArmee(2);
 
 		if (selectedTileX >= 0 && selectedTileY >= 0 && selectedTileX < 100 && selectedTileY < 100) {
 
@@ -245,9 +182,8 @@ public class PlayGameMode extends GameMode {
 			}
 
 			else if (mouse.isButtonPressed(MouseEvent.BUTTON3)) {
-				if (uniteSelect) {
-					currentArmy.get(indiceUnite).estSelectionne = false;
-					deselectUnite();
+				if (updateur.getpCourant() != null) {
+					updateur.setpCourant(null);
 				}
 			}
 		}
@@ -256,7 +192,7 @@ public class PlayGameMode extends GameMode {
 			gui.setClosingRequested();
 		}
 		if (keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
-			if (angleBasY + 1 <= levelHeight) {
+			if (angleBasY + 1 <= world.getCarte().getcHeight()) {
 				angleHautY++;
 				angleBasY++;
 				try {
@@ -278,7 +214,7 @@ public class PlayGameMode extends GameMode {
 			}
 		}
 		if (keyboard.isKeyPressed(KeyEvent.VK_RIGHT)) {
-			if (angleBasX + 1 <= levelWidth) {
+			if (angleBasX + 1 <= world.getCarte().getcWidth()) {
 				angleHautX++;
 				angleBasX++;
 				try {
@@ -312,12 +248,12 @@ public class PlayGameMode extends GameMode {
 			if (currentPlayer == 1) {
 				int countJouer = 0;
 				int countVie = 0;
-				for (int i = 0; i < armeeJoueurUn.size(); i++) {
-					if (!armeeJoueurUn.get(i).aJouer)
+				for (int i = 0; i < world.getArmees().getArmee(1).size(); i++) {
+					if (!world.getArmees().getArmee(1).get(i).aJouer)
 						countJouer++;
 				}
-				for (int i = 0; i < armeeJoueurDeux.size(); i++) {
-					if (armeeJoueurDeux.get(i).getEtat() == Etats.VIE)
+				for (int i = 0; i < world.getArmees().getArmee(2).size(); i++) {
+					if (world.getArmees().getArmee(2).get(i).getEtat() == Etats.VIE)
 						countVie++;
 				}
 				if (countVie == 0) {
@@ -326,47 +262,57 @@ public class PlayGameMode extends GameMode {
 				if (countJouer == 0) {
 
 					currentPlayer = 2;
-					for (int i = 0; i < armeeJoueurUn.size(); i++) {
-						armeeJoueurUn.get(i).aJouer = false;
+					for (int i = 0; i < world.getArmees().getArmee(1).size(); i++) {
+						world.getArmees().getArmee(1).get(i).aJouer = false;
 					}
-					boolean[] aBouger = {false,false};//0 angle haut  1 angleBas
-					Personnage p = armeeJoueurDeux.get(0);
-					if (p.pos[0] - 10 < 0) {
-						angleHautX = 0;
-						angleBasX = 20;
-						aBouger[0] = true;
-					} else {
-						angleHautX = p.pos[0] - 10;
+					boolean[] aBouger = { false, false };// 0 angle haut 1 angleBas
+					Personnage p = world.getArmees().getArmee(2).get(0);
+					if (p.getPos()[0] - 10 >= 0 && p.getPos()[0] + 10 < 100 && p.getPos()[1] - 10 >= 0
+							&& p.getPos()[1] + 10 < 100) {
+						angleHautX = p.getPos()[0] - 10;
+						angleHautY = p.getPos()[1] - 10;
+						angleBasX = p.getPos()[0] + 10;
+						angleBasY = p.getPos()[1] + 10;
 					}
-					if (p.pos[1] - 10 < 0) {
-						angleHautY = 0;
-						angleBasY = 20;
-						aBouger[1]=true;
-					} else {
-						angleHautY = p.pos[1] - 10;
+					else {
+						if (p.getPos()[0] - 10 < 0) {
+							angleHautX = 0;
+							angleBasX = 20;
+							aBouger[0] = true;
+						} else {
+							angleHautX = p.getPos()[0] - 10;
+						}
+						if (p.getPos()[1] - 10 < 0) {
+							angleHautY = 0;
+							angleBasY = 20;
+							aBouger[1] = true;
+						} else {
+							angleHautY = p.getPos()[1] - 10;
+						}
+						if (p.getPos()[0] + 10 > 100) {
+							angleBasX = 100;
+							angleHautX = 80;
+						} else if (p.getPos()[0] + 10 > 100 && !aBouger[0]) {
+							angleBasX = p.getPos()[0] + 10;
+						}
+						if (p.getPos()[1] + 10 > 100) {
+							angleBasY = 100;
+							angleHautY = 80;
+						} else if (p.getPos()[1] + 10 > 100 && !aBouger[1]) {
+							angleBasY = p.getPos()[1] + 10;
+						}
 					}
-					if (p.pos[0] + 10 > 100) {
-						angleBasX = 100;
-						angleHautX = 80;
-					} else if (p.pos[0] + 10 > 100 && !aBouger[0]) {
-						angleBasX = p.pos[0] + 10;
-					}
-					if (p.pos[1] + 10 > 100) {
-						angleBasY = 100;
-						angleHautY = 80;
-					} else if (p.pos[1] + 10 > 100 && !aBouger[1]){
-						angleBasY = p.pos[1] + 10;
-					}
+					System.out.println(angleHautX + " " + angleHautY + " : " + angleBasX + " " + angleBasY);
 				}
 			} else if (currentPlayer == 2) {
 				int countJouer = 0;
 				int countVie = 0;
-				for (int i = 0; i < armeeJoueurDeux.size(); i++) {
-					if (!armeeJoueurDeux.get(i).aJouer)
+				for (int i = 0; i < world.getArmees().getArmee(2).size(); i++) {
+					if (!world.getArmees().getArmee(2).get(i).aJouer)
 						countJouer++;
 				}
-				for (int i = 0; i < armeeJoueurUn.size(); i++) {
-					if (armeeJoueurUn.get(i).getEtat() == Etats.VIE)
+				for (int i = 0; i < world.getArmees().getArmee(1).size(); i++) {
+					if (world.getArmees().getArmee(1).get(i).getEtat() == Etats.VIE)
 						countVie++;
 				}
 				if (countVie == 0) {
@@ -374,51 +320,49 @@ public class PlayGameMode extends GameMode {
 				}
 				if (countJouer == 0) {
 					currentPlayer = 1;
-					for (int i = 0; i < armeeJoueurDeux.size(); i++) {
-						armeeJoueurDeux.get(i).aJouer = false;
+					for (int i = 0; i < world.getArmees().getArmee(2).size(); i++) {
+						world.getArmees().getArmee(2).get(i).aJouer = false;
 					}
-					
-					boolean[] aBouger = {false,false};//0 angle haut  1 angleBas
-					Personnage p = armeeJoueurUn.get(0);
-					if (p.pos[0] - 10 < 0) {
+
+					boolean[] aBouger = { false, false };// 0 angle haut 1 angleBas
+					Personnage p = world.getArmees().getArmee(1).get(0);
+					if (p.getPos()[0] - 10 < 0) {
 						angleHautX = 0;
 						angleBasX = 20;
 						aBouger[0] = true;
 					} else {
-						angleHautX = p.pos[0] - 10;
+						angleHautX = p.getPos()[0] - 10;
 					}
-					if (p.pos[1] - 10 < 0) {
+					if (p.getPos()[1] - 10 < 0) {
 						angleHautY = 0;
 						angleBasY = 20;
-						aBouger[1]=true;
+						aBouger[1] = true;
 					} else {
-						angleHautY = p.pos[1] - 10;
+						angleHautY = p.getPos()[1] - 10;
 					}
-					if (p.pos[0] + 10 > 100) {
+					if (p.getPos()[0] + 10 > 100) {
 						angleBasX = 100;
 						angleHautX = 80;
-					} else if (p.pos[0] + 10 > 100 && !aBouger[0]) {
-						angleBasX = p.pos[0] + 10;
+					} else if (p.getPos()[0] + 10 > 100 && !aBouger[0]) {
+						angleBasX = p.getPos()[0] + 10;
 					}
-					if (p.pos[1] + 10 > 100) {
+					if (p.getPos()[1] + 10 > 100) {
 						angleBasY = 100;
 						angleHautY = 80;
-					} else if (p.pos[1] + 10 > 100 && !aBouger[1]){
-						angleBasY = p.pos[1] + 10;
+					} else if (p.getPos()[1] + 10 > 100 && !aBouger[1]) {
+						angleBasY = p.getPos()[1] + 10;
 					}
 				}
 			}
 		}
 		if ((now - lastUpdate2) >= 1000000000 / 12) {
 			lastUpdate2 = now;
-			uniteSelect = false;
-			indiceUniteSelect = -1;
 
 			updateTerrain();
 
 			updateArmee();
 
-			if (uniteSelect) {
+			if (updateur.getpCourant() != null) {
 				updateInfo();
 			} else {
 				infoLayer.setSpriteCount(0);
@@ -445,13 +389,12 @@ public class PlayGameMode extends GameMode {
 	 */
 
 	private void gestionDep(List<Personnage> currentArmy) {
-		Case c = battleField.get(selectedTileX + selectedTileY * 100);
-
-		if (!uniteSelect) {
+		Case c = world.getCarte().getCarte().get(selectedTileX + selectedTileY * 100);
+		if (updateur.getpCourant() == null) {
 			for (int i = 0; i < currentArmy.size(); i++) {
 				if (c.posEgale(currentArmy.get(i)) && !currentArmy.get(i).aJouer) {
-					currentArmy.get(i).estSelectionne = true;
-					selectUnite(i);
+					updateur.setpCourant(currentArmy.get(i));
+					updateur.calculDeplacement();
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -461,11 +404,12 @@ public class PlayGameMode extends GameMode {
 				}
 			}
 		} else {
-			Personnage uniteSel = currentArmy.get(indiceUnite);
+			Personnage uniteSel = updateur.getpCourant();
 			if (uniteSel.posEgale(c)) {
 				uniteSel.aJouer = true;
 				uniteSel.estSelectionne = false;
-				deselectUnite();
+				System.out.println("Jai jouer");
+				updateur.setpCourant(null);
 				return;
 			}
 			for (int i = 0; i < currentArmy.size(); i++) {
@@ -473,7 +417,7 @@ public class PlayGameMode extends GameMode {
 				if (c.posEgale(p) && !p.aJouer) {
 					uniteSel.estSelectionne = false;
 					p.estSelectionne = true;
-					changementUniteSelect(i);
+					updateur.setpCourant(p);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -482,29 +426,15 @@ public class PlayGameMode extends GameMode {
 					return;
 				}
 			}
-			for (int i = 0; i < uniteSel.depPossible.size(); i++) {
-				Case cc = uniteSel.depPossible.get(i);
+			for (int i = 0; i < uniteSel.getDepPossible().size(); i++) {
+				Case cc = uniteSel.getDepPossible().get(i);
 				if (c.posEgale(cc)) {
 					uniteSel.deplacement(selectedTileX, selectedTileY);
-					deselectUnite();
+					updateur.setpCourant(null);
 					return;
 				}
 			}
 		}
-	}
-
-	private void changementUniteSelect(int indice) {
-		indiceUnite = indice;
-	}
-
-	private void selectUnite(int indice) {
-		uniteSelect = true;
-		indiceUnite = indice;
-	}
-
-	private void deselectUnite() {
-		indiceUnite = -1;
-		uniteSelect = false;
 	}
 
 	/**
@@ -514,11 +444,12 @@ public class PlayGameMode extends GameMode {
 		int index = 0;
 		int screenX = 0;
 		int screenY = 0;
+		int width = world.getCarte().getcWidth();
 		for (int i = angleHautY; i < angleBasY; i++) {
 			for (int j = angleHautX; j < angleBasX; j++) {
 
-				levelLayer.setSpriteTexture(index, battleField.get(j + i * levelWidth).skin % 10 - 1,
-						battleField.get(j + i * levelWidth).skin / 10);
+				levelLayer.setSpriteTexture(index, world.getCarte().getCarte().get(j + i * width).getSkin() % 10 - 1,
+						world.getCarte().getCarte().get(j + i * width).getSkin() / 10);
 
 				levelLayer.setSpriteLocation(index++, screenX * levelLayer.getTileWidth(),
 						screenY * levelLayer.getTileHeight());
@@ -534,25 +465,16 @@ public class PlayGameMode extends GameMode {
 	 * @param indiceUniteSelect
 	 */
 	private void updateArmee() {
-		for (int i = 0; i < armeeJoueurUn.size() + armeeJoueurDeux.size(); i++) {
+		for (int i = 0; i < world.getArmees().getArmee(1).size() + world.getArmees().getArmee(2).size(); i++) {
 			int x, y, skin;
-			if (i < armeeJoueurUn.size()) {
-				x = armeeJoueurUn.get(i).pos[0];
-				y = armeeJoueurUn.get(i).pos[1];
-				skin = armeeJoueurUn.get(i).skin;
-				if (armeeJoueurUn.get(i).estSelectionne && !armeeJoueurUn.get(i).aJouer) {
-					uniteSelect = true;
-					indiceUniteSelect = i;
-				}
+			if (i < world.getArmees().getArmee(1).size()) {
+				x = world.getArmees().getArmee(1).get(i).getPos()[0];
+				y = world.getArmees().getArmee(1).get(i).getPos()[1];
+				skin = world.getArmees().getArmee(1).get(i).getSkin();
 			} else {
-				x = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[0];
-				y = armeeJoueurDeux.get(i % armeeJoueurUn.size()).pos[1];
-				skin = armeeJoueurDeux.get(i % armeeJoueurUn.size()).skin;
-				if (armeeJoueurDeux.get(i % armeeJoueurUn.size()).estSelectionne
-						&& !armeeJoueurDeux.get(i % armeeJoueurUn.size()).aJouer) {
-					uniteSelect = true;
-					indiceUniteSelect = i % armeeJoueurUn.size();
-				}
+				x = world.getArmees().getArmee(2).get(i % world.getArmees().getArmee(1).size()).getPos()[0];
+				y = world.getArmees().getArmee(2).get(i % world.getArmees().getArmee(1).size()).getPos()[1];
+				skin = world.getArmees().getArmee(2).get(i % world.getArmees().getArmee(1).size()).getSkin();
 			}
 			if (x - angleHautX >= 0 && x - angleHautX < 20 && y - angleHautY >= 0 && y - angleHautY < 20) {
 				charsLayer.setSpriteLocation(i, (x - angleHautX) * charsLayer.getTileWidth(),
@@ -565,29 +487,28 @@ public class PlayGameMode extends GameMode {
 
 	private void updateInfo() {
 		if (currentPlayer == 1) {
-			Personnage unite = armeeJoueurUn.get(indiceUniteSelect);
-			unite.calculDeplacement();
-			infoLayer.setSpriteCount(unite.depPossible.size());
-			for (int i = 0; i < unite.depPossible.size(); i++) {
-				Case caseCourrante = unite.depPossible.get(i);
-				if (caseCourrante.pos[0] - angleHautX >= 0 && caseCourrante.pos[0] - angleHautX < 20
-						&& caseCourrante.pos[1] - angleHautY >= 0 && caseCourrante.pos[1] - angleHautY < 20) {
+			Personnage unite = updateur.getpCourant();
+			infoLayer.setSpriteCount(unite.getDepPossible().size());
+			for (int i = 0; i < unite.getDepPossible().size(); i++) {
+				Case caseCourrante = unite.getDepPossible().get(i);
+				if (caseCourrante.getPos()[0] - angleHautX >= 0 && caseCourrante.getPos()[0] - angleHautX < 20
+						&& caseCourrante.getPos()[1] - angleHautY >= 0 && caseCourrante.getPos()[1] - angleHautY < 20) {
 					infoLayer.setSpriteTexture(i, 3, 0);
-					infoLayer.setSpriteLocation(i, (caseCourrante.pos[0] - angleHautX) * infoLayer.getTileWidth(),
-							(caseCourrante.pos[1] - angleHautY) * infoLayer.getTileHeight());
+					infoLayer.setSpriteLocation(i, (caseCourrante.getPos()[0] - angleHautX) * infoLayer.getTileWidth(),
+							(caseCourrante.getPos()[1] - angleHautY) * infoLayer.getTileHeight());
 				}
 			}
 		} else {
-			Personnage unite = armeeJoueurDeux.get(indiceUniteSelect);
-			unite.calculDeplacement();
-			infoLayer.setSpriteCount(unite.depPossible.size());
-			for (int i = 0; i < unite.depPossible.size(); i++) {
-				Case caseCourrante = unite.depPossible.get(i);
-				if (caseCourrante.pos[0] - angleHautX >= 0 && caseCourrante.pos[0] - angleHautX < 20
-						&& caseCourrante.pos[1] - angleHautY >= 0 && caseCourrante.pos[1] - angleHautY < 20) {
+			Personnage unite = updateur.getpCourant();
+			updateur.calculDeplacement();
+			infoLayer.setSpriteCount(unite.getDepPossible().size());
+			for (int i = 0; i < unite.getDepPossible().size(); i++) {
+				Case caseCourrante = unite.getDepPossible().get(i);
+				if (caseCourrante.getPos()[0] - angleHautX >= 0 && caseCourrante.getPos()[0] - angleHautX < 20
+						&& caseCourrante.getPos()[1] - angleHautY >= 0 && caseCourrante.getPos()[1] - angleHautY < 20) {
 					infoLayer.setSpriteTexture(i, 3, 0);
-					infoLayer.setSpriteLocation(i, (caseCourrante.pos[0] - angleHautX) * infoLayer.getTileWidth(),
-							(caseCourrante.pos[1] - angleHautY) * infoLayer.getTileHeight());
+					infoLayer.setSpriteLocation(i, (caseCourrante.getPos()[0] - angleHautX) * infoLayer.getTileWidth(),
+							(caseCourrante.getPos()[1] - angleHautY) * infoLayer.getTileHeight());
 				}
 			}
 		}

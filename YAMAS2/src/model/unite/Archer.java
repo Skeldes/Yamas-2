@@ -1,6 +1,4 @@
-package model;
-
-import model.Personnage;
+package model.unite;
 
 /**
  * 
@@ -14,9 +12,10 @@ import model.Personnage;
  */
 public class Archer extends Personnage {
 
-	public Archer(int x, int y, int armee, int skin) {
-		super(10, 10, 10, 3, skin, x, y, armee);
+	public Archer() {
+		
 	}
+	
 
 	/**
 	 * Attaque de base sur la cible p inflige des dégats moyens

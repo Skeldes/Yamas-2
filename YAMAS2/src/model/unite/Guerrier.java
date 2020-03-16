@@ -1,6 +1,4 @@
-package model;
-
-import model.Personnage;
+package model.unite;
 
 /**
  * 
@@ -13,8 +11,7 @@ import model.Personnage;
  */
 public class Guerrier extends Personnage {
 
-	public Guerrier(int x, int y, int armee, int skin) {
-		super(10, 10, 10, 6, skin, x, y, armee);
+	public Guerrier() {
 	}
 
 	/**
