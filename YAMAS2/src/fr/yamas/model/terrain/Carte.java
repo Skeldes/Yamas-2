@@ -236,6 +236,8 @@ public class Carte {
 				pos[1] = i;
 				c.setPos(pos);
 				c.setCaseElement(i*100+j);
+				c.setCout(Integer.MAX_VALUE);
+				c.setHeuristique(Integer.MAX_VALUE);
 				carte.add(c);
 			}
 		}
@@ -249,6 +251,8 @@ public class Carte {
 					pos[1] = i;
 					c.setPos(pos);
 					c.setCaseElement(i*100+j);
+					c.setCout(Integer.MAX_VALUE);
+					c.setHeuristique(Integer.MAX_VALUE);
 					carte.add(j + i * cWidth, c);
 				}
 			}

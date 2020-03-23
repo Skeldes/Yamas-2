@@ -2,7 +2,6 @@ package fr.yamas.game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import fr.yamas.model.*;
 import fr.yamas.model.terrain.*;
 import fr.yamas.model.unite.*;
 import fr.yamas.vue.Camera;
-import fr.yamas.vue.Layer;
 
 /**
  * 
@@ -30,10 +28,6 @@ public class PlayGameMode extends GameMode {
 
 	// Variable d'info
 	private int currentPlayer;
-
-	// Controlleur
-	private Mouse mouse;
-	private Keyboard keyboard;
 
 	private Camera camera;
 	private Updateur updateur;
@@ -65,10 +59,7 @@ public class PlayGameMode extends GameMode {
 		};
 		camera = new Camera(this, world);
 		currentPlayer = 1;
-		getGui().createWindow(32 * camera.getWidth(), 32 * camera.getHeight(),
-				"Yamas 2 - le retour !");
-		mouse = getGui().getMouse();
-		keyboard = getGui().getKeyboard();
+		getGui().createWindow(32 * camera.getWidth(), 32 * camera.getHeight(), "Yamas 2 - le retour !");
 		t.run();
 	}
 
@@ -84,6 +75,8 @@ public class PlayGameMode extends GameMode {
 	 */
 	@Override
 	public void handleInput() {
+		Mouse mouse = gui.getMouse();
+		Keyboard keyboard = gui.getKeyboard();
 		selectedTileX = mouse.getX() / 32 + camera.getCorner(0);
 		selectedTileY = mouse.getY() / 32 + camera.getCorner(1);
 
@@ -199,6 +192,66 @@ public class PlayGameMode extends GameMode {
 		}
 		if ((now - lastUpdate2) >= 1000000000 / 12) {
 			lastUpdate2 = now;
+			ArrayList<Personnage> armee = world.getArmees().getArmee(currentPlayer);
+			Personnage moveP = null;
+			for(Personnage p : armee) {
+				if(p.isInMove())
+					moveP = p;
+			}
+			if(moveP != null) {
+				Direction d = moveP.getDirection();
+				int pos = moveP.getPosInter();
+				int x = moveP.getPos()[0];
+				int y = moveP.getPos()[1];				
+				switch(d) {
+				case EAST:
+					pos++;
+					if(pos == moveP.getSpeed()) {
+						x++;
+						pos = -moveP.getSpeed();
+					}
+					if(pos == 0) {
+						moveP.nextStep();
+					}
+					break;
+				case WEST:
+					pos++;
+					if(pos == moveP.getSpeed()) {
+						x--;
+						pos = -moveP.getSpeed();
+					}
+					if(pos == 0) {
+						moveP.nextStep();
+					}
+					break;
+				case NORTH:
+					pos++;
+					if(pos == moveP.getSpeed()) {
+						y--;
+						pos = -moveP.getSpeed();
+					}
+					if(pos == 0) {
+						moveP.nextStep();
+					}
+					break;
+				case SOUTH:
+					pos++;
+					if(pos == moveP.getSpeed()) {
+						y++;
+						pos = -moveP.getSpeed();
+					}
+					if(pos == 0) {
+						moveP.nextStep();
+					}
+					break;
+				case NONE:
+					break;
+				}
+				int[] res = new int[2];
+				res[0] = x; res[1]=y;
+				moveP.setPos(res);
+				moveP.setPosInter(pos);
+			}
 			camera.update();
 		}
 	}
@@ -256,11 +309,13 @@ public class PlayGameMode extends GameMode {
 					return;
 				}
 			}
-			for (int i = 0; i < uniteSel.getDepPossible().size(); i++) {
+			for (Integer i : uniteSel.getDepPossible().keySet()) {
 				Case cc = uniteSel.getDepPossible().get(i);
 				if (c.posEgale(cc)) {
-					uniteSel.deplacement(selectedTileX, selectedTileY);
+					uniteSel.setRoute(updateur.CalculChemin(selectedTileX, selectedTileY));;
+					uniteSel.deplacement();
 					uniteSel.setSelectionne(false);
+					uniteSel.setCaseElement(selectedTileX+selectedTileY*world.getCarte().getcWidth());
 					updateur.calAllDep();
 					return;
 				}

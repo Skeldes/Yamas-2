@@ -1,6 +1,6 @@
 package fr.yamas.model.unite;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import fr.yamas.model.Element;
 import fr.yamas.model.ElementCreator;
@@ -28,7 +28,7 @@ public class ArmeeFactory extends Factory {
 				p.setDeplacement(10);
 				p.setSkin(2);
 				p.setEtat(Etats.VIE);
-				p.setDepPossible(new ArrayList<Case>());
+				p.setDepPossible(new HashMap<Integer, Case>());
 				return p;
 			}
 		});
@@ -42,7 +42,7 @@ public class ArmeeFactory extends Factory {
 				p.setDeplacement(10);
 				p.setSkin(3);
 				p.setEtat(Etats.VIE);
-				p.setDepPossible(new ArrayList<Case>());
+				p.setDepPossible(new HashMap<Integer, Case>());
 				return p;
 			}
 		});
@@ -56,7 +56,7 @@ public class ArmeeFactory extends Factory {
 				p.setDeplacement(5);
 				p.setSkin(1);
 				p.setEtat(Etats.VIE);
-				p.setDepPossible(new ArrayList<Case>());
+				p.setDepPossible(new HashMap<Integer, Case>());
 				return p;
 			}
 		});
@@ -70,7 +70,7 @@ public class ArmeeFactory extends Factory {
 				p.setDeplacement(5);
 				p.setSkin(5);
 				p.setEtat(Etats.VIE);
-				p.setDepPossible(new ArrayList<Case>());
+				p.setDepPossible(new HashMap<Integer, Case>());
 				return p;
 			}
 		});
@@ -84,7 +84,7 @@ public class ArmeeFactory extends Factory {
 				p.setDeplacement(5);
 				p.setSkin(4);
 				p.setEtat(Etats.VIE);
-				p.setDepPossible(new ArrayList<Case>());
+				p.setDepPossible(new HashMap<Integer , Case>());
 				return p;
 			}
 		});

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import fr.yamas.game.GameMode;
 import fr.yamas.model.World;
 import fr.yamas.model.terrain.Case;
+import fr.yamas.model.unite.Direction;
 import fr.yamas.model.unite.Personnage;
 
 public class Camera {
@@ -119,9 +120,31 @@ public class Camera {
 			for (Personnage p : armee) {
 				if (p.getPos()[0] >= corner[0] && p.getPos()[0] < corner[0] + width && p.getPos()[1] >= corner[1]
 						&& p.getPos()[1] < corner[1] + height) {
-					charsLayer.setSpriteLocation(index, (p.getPos()[0]-corner[0]) * armeeTileSet.getTileWidth(), (p.getPos()[1]-corner[1]) * armeeTileSet.getTileHeight());
-					charsLayer.setSpriteTexture(index, armeeTileSet.getTile(p).getX(), armeeTileSet.getTile(p).getY());
-					index++;
+					if(p.isInMove()) {
+						int x = (p.getPos()[0]-corner[0])*charsLayer.getTileWidth();
+						int y = (p.getPos()[1]-corner[1]) * charsLayer.getTileHeight();
+						int pos = p.getPosInter();
+						Direction d = p.getDirection();
+						if(d == Direction.EAST) {
+							x+= (armeeTileSet.getTileWidth()*pos) / (2*p.getSpeed());
+						}
+						else if(d == Direction.WEST) {
+							x-= (armeeTileSet.getTileWidth()*pos) / (2*p.getSpeed());
+						}
+						else if(d == Direction.SOUTH) {
+							y+= (armeeTileSet.getTileHeight()*pos) / (2*p.getSpeed());
+						}
+						else if( d == Direction.NORTH) {
+							y-= (armeeTileSet.getTileHeight()*pos) / (2*p.getSpeed());
+						}
+						charsLayer.setSpriteLocation(index, x, y);
+						charsLayer.setSpriteTexture(index++, armeeTileSet.getTile(p).getX(), armeeTileSet.getTile(p).getY());
+					}
+					else {
+						charsLayer.setSpriteLocation(index, (p.getPos()[0]-corner[0]) * armeeTileSet.getTileWidth(), (p.getPos()[1]-corner[1]) * armeeTileSet.getTileHeight());
+						charsLayer.setSpriteTexture(index, armeeTileSet.getTile(p).getX(), armeeTileSet.getTile(p).getY());
+						index++;
+					}
 				}
 				if(p.isSelectionne())
 					pSel = p;
@@ -129,14 +152,16 @@ public class Camera {
 		}
 		if (pSel != null) {
 			count = 0;
-			for (Case c : pSel.getDepPossible()) {
+			for (Integer i : pSel.getDepPossible().keySet()) {
+				Case c = pSel.getDepPossible().get(i);
 				if (c.getPos()[0] >= corner[0] && c.getPos()[0] < corner[0] + width && c.getPos()[1] >= corner[1]
 						&& c.getPos()[1] < corner[1] + height)
 					count++;
 			}
 			infoLayer.setSpriteCount(count);
 			index = 0;
-			for (Case c : pSel.getDepPossible()) {
+			for (Integer i : pSel.getDepPossible().keySet()) {
+				Case c = pSel.getDepPossible().get(i);
 				if (c.getPos()[0] >= corner[0] && c.getPos()[0] < corner[0] + width && c.getPos()[1] >= corner[1]
 						&& c.getPos()[1] < corner[1] + height) {
 					infoLayer.setSpriteLocation(index, (c.getPos()[0]-corner[0]) * 32, (c.getPos()[1]-corner[1]) * 32);

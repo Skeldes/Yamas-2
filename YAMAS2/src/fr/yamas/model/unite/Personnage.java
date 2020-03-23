@@ -1,6 +1,7 @@
 package fr.yamas.model.unite;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import fr.yamas.model.Element;
 import fr.yamas.model.terrain.Case;
@@ -16,8 +17,6 @@ public abstract class Personnage extends Element {
 	private int pv;
 	private int pvMax;
 
-	// XXX l'attaque dépend des compétences. est-ce justicieux de faire une variable
-	// attaque ?
 	private int attaque;
 
 	private int armee;
@@ -25,42 +24,61 @@ public abstract class Personnage extends Element {
 	private boolean Selectionne;
 	private boolean aJouer;
 
-	private ArrayList<Case> depPossible;
+	private HashMap<Integer, Case> depPossible;
+	private ArrayList<Case> route;
 	private int deplacement;
 
 	private Etats etat;
 
-	/*
-	 * XXX problème de portée Certaine attaques ont une portée différente à
-	 * retravailler
-	 */
+	private final int speed = 2;
+
+	private boolean inMove;
+
+	private int posInter = 0;
+	private Direction direction = Direction.NONE;
+
 	private int portee;
 	public ArrayList<Case> attaquePossible;
-
 
 	/*
 	 * Fonctions qui gére le déplacements
 	 */
 
-	/*
-	 * XXX Amélioration requise. Fonction pour avec des petits valeurs de d mais met
-	 * beaucoup trop de temps avec des grandes valeurs (>8). A améliorer.
-	 */
-	
+	public void nextStep() {
+		route.remove(0);
+		if (!route.isEmpty()) {
+			if (route.get(0).getPos()[0] == this.getPos()[0] && route.get(0).getPos()[1] + 1 == this.getPos()[1])
+				this.direction = Direction.NORTH;
+			else if (route.get(0).getPos()[0] == this.getPos()[0] && route.get(0).getPos()[1] - 1 == this.getPos()[1])
+				this.direction = Direction.SOUTH;
+			else if (route.get(0).getPos()[0] + 1 == this.getPos()[0] && route.get(0).getPos()[1] == this.getPos()[1])
+				this.direction = Direction.WEST;
+			else if (route.get(0).getPos()[0] - 1 == this.getPos()[0] && route.get(0).getPos()[1] == this.getPos()[1])
+				this.direction = Direction.EAST;
+		} else {
+			inMove = false;
+			direction = Direction.NONE;
+		}
+	}
 
 	/**
 	 * Met l'unité sur la case de coordonnée (x,y)
 	 * 
-	 * @param x un entier compris entre 0 et la largeur du terrain
-	 * @param y un entier comrpis entre 0 et la hauteur du terrain
 	 */
-	public void deplacement(int x, int y) {
-		this.getPos()[0] = x;
-		this.getPos()[1] = y;
-		this.setCaseElement(x + y * 100);
+	public void deplacement() {
+		inMove = true;
+		route.remove(0);
+		if (route.get(0).getPos()[0] == this.getPos()[0] && route.get(0).getPos()[1] + 1 == this.getPos()[1])
+			this.direction = Direction.NORTH;
+		else if (route.get(0).getPos()[0] == this.getPos()[0] && route.get(0).getPos()[1] - 1 == this.getPos()[1])
+			this.direction = Direction.SOUTH;
+		else if (route.get(0).getPos()[0] + 1 == this.getPos()[0] && route.get(0).getPos()[1] == this.getPos()[1])
+			this.direction = Direction.WEST;
+		else if (route.get(0).getPos()[0] - 1 == this.getPos()[0] && route.get(0).getPos()[1] == this.getPos()[1])
+			this.direction = Direction.EAST;
+
 		this.Selectionne = false;
 		this.setaJouer(true);
-		this.depPossible.clear();
 	}
 
 	/*
@@ -117,7 +135,7 @@ public abstract class Personnage extends Element {
 	public int getDeplacement() {
 		return deplacement;
 	}
-	
+
 	public void setEtat(Etats etat) {
 		this.etat = etat;
 	}
@@ -142,11 +160,11 @@ public abstract class Personnage extends Element {
 		this.deplacement = deplacement;
 	}
 
-	public ArrayList<Case> getDepPossible() {
+	public HashMap<Integer, Case> getDepPossible() {
 		return depPossible;
 	}
 
-	public void setDepPossible(ArrayList<Case> depPossible) {
+	public void setDepPossible(HashMap<Integer, Case> depPossible) {
 		this.depPossible = depPossible;
 	}
 
@@ -165,7 +183,45 @@ public abstract class Personnage extends Element {
 	public void setaJouer(boolean aJouer) {
 		this.aJouer = aJouer;
 	}
-	
-	
+
+	public ArrayList<Case> getRoute() {
+		return route;
+	}
+
+	public void addRoute(int indice, Case c) {
+		this.route.add(indice, c);
+	}
+
+	public void setRoute(ArrayList<Case> route) {
+		this.route = route;
+	}
+
+	public int getPosInter() {
+		return posInter;
+	}
+
+	public void setPosInter(int posInter) {
+		this.posInter = posInter;
+	}
+
+	public Direction getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Direction direction) {
+		this.direction = direction;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public boolean isInMove() {
+		return inMove;
+	}
+
+	public void setInMove(boolean inMove) {
+		this.inMove = inMove;
+	}
 
 }

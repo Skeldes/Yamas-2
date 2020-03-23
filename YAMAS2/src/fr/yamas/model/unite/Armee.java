@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import fr.yamas.model.terrain.Case;
+
 public class Armee {
 
 	private Map<Integer, ArrayList<Personnage>> armees = new TreeMap<Integer, ArrayList<Personnage>>();
@@ -12,7 +14,7 @@ public class Armee {
 	private int nbArmee;
 
 	private int[][][] Larmees = new int[2][4][3];
-	private int[][] armeeJ1 = { { 2, 0, 0 }, { 2, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 } };
+	private int[][] armeeJ1 = { { 2, 0, 0 }, { 4, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 } };
 	private int[][] armeeJ2 = { { 2, 99, 99 }, { 2, 99, 98 }, { 1, 98, 99 }, { 1, 98, 98 } };
 
 	public Armee() {
@@ -30,9 +32,9 @@ public class Armee {
 				pos[0] = Larmees[i][j][1];
 				pos[1] = Larmees[i][j][2];
 				p.setPos(pos);
-				System.out.println("x =" + j + " y =" + i + " case = " + (j + i * 100));
 				p.setCaseElement(Larmees[i][j][1] + Larmees[i][j][2] * 100);
 				p.setArmee(i + 1);
+				p.setRoute(new ArrayList<Case>());
 				armee.add(p);
 			}
 			nbArmee = getNbArmee() + 1;

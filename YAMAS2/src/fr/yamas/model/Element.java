@@ -31,7 +31,7 @@ public abstract class Element  {
 	public int getCaseElement() {
 		return caseElement;
 	}
-
+	
 
 	public void setCaseElement(int caseElement) {
 		this.caseElement = caseElement;
