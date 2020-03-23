@@ -22,11 +22,9 @@ public class Camera {
 	private TileSet gridTileSet;
 
 	private GUIFacade gui;
-	private GameMode gm;
 	private World w;
 
 	public Camera(GameMode gm, World w) {
-		this.gm = gm;
 		this.gui = gm.getGui();
 		this.w = w;
 		width = 20;
