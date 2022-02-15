@@ -1,3 +1,2 @@
 # Yamas-2
- README
-https://www.eni-training.com/client_net/mediabook.aspx?idR=257390
+Un jeu qu'il est bien d'y jouer (même si on ne peut pas vu qu'il ne marche pas lel )
